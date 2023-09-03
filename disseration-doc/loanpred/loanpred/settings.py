@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-6g+%&8v1w^g9toq=a_&_)_6%x+h_!3=(1#77o!rr7uigtk2l3s
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['https://loandl-api.azurewebsites.net','loandl-api.azurewebsites.net', 'http://127.0.0.1:8000','0.0.0.0:8000' '*','127.0.0.1',]
 
 
 # Application definition
@@ -50,6 +50,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 ROOT_URLCONF = "loanpred.urls"
@@ -121,3 +122,6 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATIC_ROOT = BASE_DIR / "staticfiles"

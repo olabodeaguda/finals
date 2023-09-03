@@ -22,6 +22,7 @@ decorator==5.1.1
 Django==4.1.6
 django-rest-swagger==2.2.0
 djangorestframework==3.14.0
+drf-yasg==1.21.7
 editdistance==0.6.2
 efficientnet==1.0.0
 entrypoints==0.4
@@ -42,6 +43,7 @@ idna==3.4
 ImageHash==4.3.1
 imageio==2.27.0
 imgaug==0.4.0
+inflection==0.5.1
 ipykernel==6.19.4
 ipython==8.7.0
 itypes==1.2.0
@@ -148,3 +150,5 @@ Werkzeug==2.2.3
 wrapt==1.14.1
 xgboost==1.7.5
 xyzservices==2023.5.0
+gunicorn
+whitenoise

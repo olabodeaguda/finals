@@ -21,7 +21,7 @@ from .views import preditLoanApplication
 
 schema_view = swagger_get_schema_view(
     openapi.Info(
-        title= 'Loan appliation prediction API',
+        title= 'Loan application prediction API',
         default_version= '1.0.0',
         description= ' API documentation of App'
     ),

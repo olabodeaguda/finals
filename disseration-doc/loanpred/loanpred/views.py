@@ -1,3 +1,4 @@
+from webbrowser import get
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -94,138 +95,92 @@ def preditLoanApplication(request, format=None):
     payload = json.loads(request.body)
 
     data = data_transform(payload)
-
-
+    
     module_dir = os.path.dirname(__file__)  # get current directory
-    file_path = os.path.join(module_dir, 'dnn_model.pkl')
+    file_path = os.path.join(module_dir, 'dl_model.pkl')
 
     file = open(file_path, 'rb')
     p = pickle.load(file)
 
-    print(data)
-    result = p.predict(data)
-    return Response({"result": str(result)}, status=status.HTTP_200_OK)
+    result = p.predict([data])
+
+    x = int(result[0][0])
+    return Response({"result": False if x == 1 else True}, status=status.HTTP_200_OK)
 
 
 def data_transform(payload):
-
+  
     py = {
-        'loan_amnt': [payload['loan_amnt']],
-        'term': [payload['term']],
-        'int_rate': [payload['int_rate']],
-        'installment': [payload['installment']],
-        'annual_inc': [payload['annual_inc']],
-        'dti': [payload['dti']],
-        'earliest_cr_line': [payload['earliest_cr_line']],
-        'open_acc': [payload['open_acc']],
-        'pub_rec': [payload['pub_rec']],
-        'revol_bal': [payload['revol_bal']],
-        'revol_util': [payload['revol_util']],
-        'total_acc': [payload['total_acc']],
-        'mort_acc': [payload['mort_acc']],
-        'pub_rec_bankruptcies': [payload['pub_rec_bankruptcies']],
-        'sub_grade_A2': [1 if payload['sub_grade'].lower() == 'a2' else 0],
-        'sub_grade_A3': [1 if payload['sub_grade'].lower() == 'a3' else 0],
-        'sub_grade_A4': [1 if payload['sub_grade'].lower() == 'a4' else 0],
-        'sub_grade_A5': [1 if payload['sub_grade'].lower() == 'a5' else 0],
-        'sub_grade_B1': [1 if payload['sub_grade'].lower() == 'b1' else 0],
-        'sub_grade_B2': [1 if payload['sub_grade'].lower() == 'b2' else 0],
-        'sub_grade_B3': [1 if payload['sub_grade'].lower() == 'b3' else 0],
-        'sub_grade_B4': [1 if payload['sub_grade'].lower() == 'b4' else 0],
-        'sub_grade_B5': [1 if payload['sub_grade'].lower() == 'b5' else 0],
-        'sub_grade_C1': [1 if payload['sub_grade'].lower() == 'c1' else 0],
-        'sub_grade_C2': [1 if payload['sub_grade'].lower() == 'c2' else 0],
-        'sub_grade_C3': [1 if payload['sub_grade'].lower() == 'c3' else 0],
-        'sub_grade_C4': [1 if payload['sub_grade'].lower() == 'c4' else 0],
-        'sub_grade_C5': [1 if payload['sub_grade'].lower() == 'c5' else 0],
-        'sub_grade_D1': [1 if payload['sub_grade'].lower() == 'd1' else 0],
-        'sub_grade_D2': [1 if payload['sub_grade'].lower() == 'd2' else 0],
-        'sub_grade_D3': [1 if payload['sub_grade'].lower() == 'd3' else 0],
-        'sub_grade_D4': [1 if payload['sub_grade'].lower() == 'd4' else 0],
-        'sub_grade_D5': [1 if payload['sub_grade'].lower() == 'd5' else 0],
-        'sub_grade_E1': [1 if payload['sub_grade'].lower() == 'e1' else 0],
-        'sub_grade_E2': [1 if payload['sub_grade'].lower() == 'e2' else 0],
-        'sub_grade_E3': [1 if payload['sub_grade'].lower() == 'e3' else 0],
-        'sub_grade_E4': [1 if payload['sub_grade'].lower() == 'e4' else 0],
-        'sub_grade_E5': [1 if payload['sub_grade'].lower() == 'e5' else 0],
-        'sub_grade_F1': [1 if payload['sub_grade'].lower() == 'f1' else 0],
-        'sub_grade_F2': [1 if payload['sub_grade'].lower() == 'f2' else 0],
-        'sub_grade_F3': [1 if payload['sub_grade'].lower() == 'f3' else 0],
-        'sub_grade_F4': [1 if payload['sub_grade'].lower() == 'f4' else 0],
-        'sub_grade_F5': [1 if payload['sub_grade'].lower() == 'f5' else 0],
-        'sub_grade_G1': [1 if payload['sub_grade'].lower() == 'g1' else 0],
-        'sub_grade_G2': [1 if payload['sub_grade'].lower() == 'g2' else 0],
-        'sub_grade_G3': [1 if payload['sub_grade'].lower() == 'g3' else 0],
-        'sub_grade_G4': [1 if payload['sub_grade'].lower() == 'g4' else 0],
-        'sub_grade_G5': [1 if payload['sub_grade'].lower() == 'g5' else 0],
-        'verification_status_Verified': [1 if payload['verification_status'].lower() == 'Verified' else 0],
-        'verification_status_Source Verified': [1 if payload['verification_status'].lower() != 'Verified' else 0],
-        'purpose_credit_card': [1 if payload['purpose'].lower() == 'credit card' else 0],
-        'purpose_debt_consolidation': [1 if payload['purpose'].lower() == 'consolidation' else 0],
-        'purpose_educational': [1 if payload['purpose'].lower() == 'educational' else 0],
-        'purpose_home_improvement': [1 if payload['purpose'].lower() == 'improvement' else 0],
-        'purpose_house': [1 if payload['purpose'].lower() == 'house' else 0],
-        'purpose_major_purchase': [1 if payload['purpose'].lower() == 'purchase' else 0],
-        'purpose_medical': [1 if payload['purpose'].lower() == 'medical' else 0],
-        'purpose_moving': [1 if payload['purpose'].lower() == 'moving' else 0],
-        'purpose_other': [1 if payload['purpose'].lower() == 'other' else 0],
-        'purpose_renewable_energy': [1 if payload['purpose'].lower() == 'renewable_energy' else 0],
-        'purpose_small_business': [1 if payload['purpose'].lower() == 'small_business' else 0],
-        'purpose_vacation': [1 if payload['purpose'].lower() == 'vacation' else 0],
-        'purpose_wedding': [1 if payload['purpose'].lower() == 'wedding' else 0],
-        'initial_list_status': [0 if payload['initial_list_status'] == 'f' else 0],
-        'application_type_JOINT': [ 1 if payload['application_type'].lower() == 'join' else 0],
-        'application_type_MORTGAGE': [1 if payload['application_type'].lower() == 'mortgage' else 0],
-        'home_ownership_MORTGAGE': [ 1 if payload['home_ownership'].lower() == 'mortage' else 0],
-        'home_ownership_NONE': [ 1 if payload['home_ownership'].lower() == 'none' else 0],
-        'home_ownership_OTHER': [ 1 if payload['home_ownership'].lower() == 'other' else 0],
-        'home_ownership_OWN': [ 1 if payload['home_ownership'].lower() == 'own' else 0],
-        'home_ownership_RENT': [ 1 if payload['home_ownership'].lower() == 'rent' else 0],
-        'zip_code_05113': [0],
-        'zip_code_11650': [0],
-        'zip_code_22690': [0],
-        'zip_code_29597': [0],
-        'zip_code_30723': [0],
-        'zip_code_48052': [0],
-        'zip_code_70466': [0],
-        'zip_code_86630': [0],
-        'zip_code_93700': [0]
+            'loan_amnt': payload['loan_amnt'],
+            'term': payload['term'],
+            'int_rate': payload['int_rate'],
+            'installment': payload['installment'],
+            'grade': payload['grade'],
+            'sub_grade': payload['sub_grade'],
+            'emp_title': payload['emp_title'],
+            'emp_length': payload['emp_length'],
+            'home_ownership': payload['home_ownership'],
+            'annual_inc': payload['annual_inc'],
+            'verification_status': payload['verification_status'],
+            'issue_d': payload['issue_d'],
+            'loan_status': ['Charged off'],
+            'purpose': payload['purpose'],
+            'title': payload['title'],
+            'dti': payload['dti'],
+            'earliest_cr_line': payload['earliest_cr_line'],
+            'open_acc': payload['open_acc'],
+            'pub_rec': payload['pub_rec'],
+            'revol_bal': payload['revol_bal'],
+            'revol_util': payload['revol_util'],
+            'total_acc': payload['total_acc'],
+            'initial_list_status': payload['initial_list_status'],
+            'application_type': payload['application_type'],
+            'mort_acc': payload['mort_acc'],
+            'pub_rec_bankruptcies': payload['pub_rec_bankruptcies'],
+            'address': payload['address']
     }
-
+    
     data = pd.DataFrame(data=py)
 
-    data['pub_rec'] = data['pub_rec'].apply(pub_rec)
-    data['mort_acc'] = data['mort_acc'].apply(mort_acc)
-    data['pub_rec_bankruptcies'] = data['pub_rec_bankruptcies'].apply(pub_rec_bankruptcies)
+    X_train = getFitTrainData(data)
 
-    for column in data.columns:
-        if data[column].isna().sum() != 0:
-            missing = data[column].isna().sum()
-            portion = (missing / data.shape[0]) * 100
-        
-    term_values = {'36 months': 36, '60 months': 60}
-    data['term'] = data['term'].map(term_values)
-
-    data['earliest_cr_line'] = pd.to_datetime(data['earliest_cr_line'])
-    data['earliest_cr_line'] = data['earliest_cr_line'].dt.year
-
-    x = data.iloc[0].to_list()
-    print(x)
-
+    X_test = X_train.copy().iloc[[-1]].reset_index(drop=True)
+    
+    print(len(X_train.dtypes))
     scaler = MinMaxScaler()
-    resp = scaler.fit_transform(data)
+    scaler.fit_transform(X_train)
+    X_test = scaler.transform(X_test)
 
-    print(resp)
+    t = np.array(X_train).astype(np.float32).tolist()
 
-    return resp
 
+    return t[-1]
+
+def getFitTrainData(newRow):
+    module_dir = os.path.dirname(__file__)  # get current directory
+    file_path = os.path.join(module_dir, 'lending_club_loan_two.csv')
+
+    data = pd.read_csv(file_path, error_bad_lines=False)
+    data = pd.concat([data, newRow])
+
+    data = process_data(data)
+
+    if(len(data) > 78):
+        data = data[:78]
+
+    return data
+
+def terms(value):
+    value = str(value).replace('months','')
+    value = value.strip()
+
+    return int(value)
 
 def pub_rec(number):
     if number == 0.0:
         return 0
     else:
         return 1
-
 
 def mort_acc(number):
     if number == 0.0:
@@ -235,7 +190,6 @@ def mort_acc(number):
     else:
         return number
 
-
 def pub_rec_bankruptcies(number):
     if number == 0.0:
         return 0
@@ -243,3 +197,46 @@ def pub_rec_bankruptcies(number):
         return 1
     else:
         return number
+
+def fill_mort_acc(total_acc, mort_acc, total_acc_avg):
+    
+    if np.isnan(mort_acc):
+        return total_acc_avg[total_acc].round()
+    else:
+        return mort_acc
+
+def process_data(data):
+
+    data['pub_rec'] = data.pub_rec.apply(pub_rec)
+    data['mort_acc'] = data.mort_acc.apply(mort_acc)
+    data['pub_rec_bankruptcies'] = data.pub_rec_bankruptcies.apply(pub_rec_bankruptcies)
+
+    data.drop('emp_title', axis=1, inplace=True)
+    data.drop('emp_length', axis=1, inplace=True)
+    data.drop('title', axis=1, inplace=True)
+
+    total_acc_avg = data.groupby(by='total_acc').mean().mort_acc
+    data['mort_acc'] = data.apply(lambda x: fill_mort_acc(x['total_acc'], x['mort_acc'], total_acc_avg), axis=1)
+   
+    data.dropna(inplace=True)
+
+    data['term'] = data['term'].map(terms)
+
+    data.drop('grade', axis=1, inplace=True)
+    dummies = ['sub_grade', 'verification_status', 'purpose', 'initial_list_status',
+           'application_type', 'home_ownership']
+    data = pd.get_dummies(data, columns=dummies, drop_first=True)
+
+
+    data['zip_code'] = data.address.apply(lambda x: x[-5:])
+    data = pd.get_dummies(data, columns=['zip_code'], drop_first=True)
+    data.drop('address', axis=1, inplace=True)
+    data.drop('issue_d', axis=1, inplace=True)
+
+    data['earliest_cr_line'] = pd.to_datetime(data['earliest_cr_line'])
+    data['earliest_cr_line'] = data.earliest_cr_line.dt.year
+
+    
+    data = data.drop('loan_status', axis=1)
+
+    return data
